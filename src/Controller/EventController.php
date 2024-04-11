@@ -5,9 +5,10 @@ namespace App\Controller;
 use App\Dto\EventInput;
 use App\Repository\ReadEventRepository;
 use App\Repository\WriteEventRepository;
+use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -28,12 +29,16 @@ class EventController
         $this->serializer = $serializer;
     }
 
-    /**
-     * @Route(path="/api/event/{id}/update", name="api_commit_update", methods={"PUT"})
-     */
+    #[Route('/api/event/{id}/update', name: "api_commit_update", methods: ["PUT"])]
     public function update(Request $request, int $id, ValidatorInterface $validator): Response
     {
         $eventInput = $this->serializer->deserialize($request->getContent(), EventInput::class, 'json');
+        if (!$eventInput->isInitialized()) {
+            return new JsonResponse(
+                ['message' => 'Requested parameters not sent'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
 
         $errors = $validator->validate($eventInput);
 
@@ -44,7 +49,7 @@ class EventController
             );
         }
 
-        if($this->readEventRepository->exist($id) === false) {
+        if ($this->readEventRepository->exist($id) === false) {
             return new JsonResponse(
                 ['message' => sprintf('Event identified by %d not found !', $id)],
                 Response::HTTP_NOT_FOUND
@@ -53,7 +58,7 @@ class EventController
 
         try {
             $this->writeEventRepository->update($eventInput, $id);
-        } catch (\Exception $exception) {
+        } catch (Exception) {
             return new Response(null, Response::HTTP_SERVICE_UNAVAILABLE);
         }
 

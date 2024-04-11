@@ -20,11 +20,12 @@ class DbalReadEventRepository implements ReadEventRepository
         SELECT sum(count) as count
         FROM event
         WHERE date(create_at) = :date
-        AND payload like %{$searchInput->keyword}%
+        AND payload::text like (:keyword)::text
 SQL;
 
         return (int) $this->connection->fetchOne($sql, [
-            'date' => $searchInput->date
+            'date' => $searchInput->date->format('Y-m-d'),
+            'keyword' => sprintf('%%%s%%', $searchInput->keyword),
         ]);
     }
 
@@ -34,12 +35,13 @@ SQL;
             SELECT type, sum(count) as count
             FROM event
             WHERE date(create_at) = :date
-            AND payload like %{$searchInput->keyword}%
+            AND payload::text like (:keyword)::text
             GROUP BY type
 SQL;
 
         return $this->connection->fetchAllKeyValue($sql, [
-            'date' => $searchInput->date
+            'date' => $searchInput->date->format('Y-m-d'),
+            'keyword' => sprintf('%%%s%%', $searchInput->keyword),
         ]);
     }
 
@@ -49,12 +51,13 @@ SQL;
             SELECT extract(hour from create_at) as hour, type, sum(count) as count
             FROM event
             WHERE date(create_at) = :date
-            AND payload like %{$searchInput->keyword}%
+            AND payload::text like (:keyword)::text
             GROUP BY TYPE, EXTRACT(hour from create_at)
 SQL;
 
-        $stats = $this->connection->fetchAll($sql, [
-            'date' => $searchInput->date
+        $stats = $this->connection->fetchAllKeyValue($sql, [
+            'date' => $searchInput->date->format('Y-m-d'),
+            'keyword' => sprintf('%%%s%%', $searchInput->keyword),
         ]);
 
         $data = array_fill(0, 24, ['commit' => 0, 'pullRequest' => 0, 'comment' => 0]);
@@ -69,15 +72,16 @@ SQL;
     public function getLatest(SearchInput $searchInput): array
     {
         $sql = <<<SQL
-            SELECT type, repo
-            FROM event
-            WHERE date(create_at) = :date
-            AND payload like %{$searchInput->keyword}%
+            SELECT e.type, jsonb_build_object('id', r.id, 'name', r.name, 'url', r.url) AS repo
+            FROM event e
+            INNER JOIN repo r ON e.repo_id = r.id
+            WHERE date(e.create_at) = :date
+            AND e.payload::text like (:keyword)::text
 SQL;
 
         $result = $this->connection->fetchAllAssociative($sql, [
-            'date' => $searchInput->date,
-            'keyword' => $searchInput->keyword,
+            'date' => $searchInput->date->format('Y-m-d'),
+            'keyword' => sprintf('%%%s%%', $searchInput->keyword),
         ]);
 
         $result = array_map(static function($item) {

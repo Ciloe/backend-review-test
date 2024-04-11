@@ -2,15 +2,19 @@
 
 namespace App\Dto;
 
+use DateTimeImmutable;
+
 class SearchInput
 {
-    /**
-     * @var \DateTimeImmutable
-     */
-    public $date;
+    public DateTimeImmutable $date;
 
-    /**
-     * @var string
-     */
-    public $keyword;
+    public string $keyword;
+
+    public function isInitialized(): bool
+    {
+        $propertyDate = new \ReflectionProperty(SearchInput::class, 'date');
+        $propertyKeyword = new \ReflectionProperty(SearchInput::class, 'keyword');
+
+        return $propertyDate->isInitialized($this) && $propertyKeyword->isInitialized($this);
+    }
 }

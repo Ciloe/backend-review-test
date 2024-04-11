@@ -4,9 +4,9 @@ namespace App\Controller;
 
 use App\Dto\SearchInput;
 use App\Repository\ReadEventRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -17,18 +17,20 @@ class SearchController
 
     public function __construct(
         ReadEventRepository $repository,
-        SerializerInterface  $serializer
+        SerializerInterface $serializer
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer;
     }
 
-    /**
-     * @Route(path="/api/search", name="api_search", methods={"GET"})
-     */
+    #[Route('/api/search', name: "api_search", methods: ["GET"])]
     public function searchCommits(Request $request): JsonResponse
     {
+        /** @var SearchInput $searchInput */
         $searchInput = $this->serializer->denormalize($request->query->all(), SearchInput::class);
+        if (!$searchInput->isInitialized()) {
+            throw new NotFoundHttpException('Requested parameters not sent');
+        }
 
         $countByType = $this->repository->countByType($searchInput);
 
