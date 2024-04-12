@@ -35,7 +35,7 @@ class Event
     private array $payload;
 
     #[ORM\Column(type: "datetime_immutable", nullable: false)]
-    private DateTimeImmutable $createAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: "text", nullable: true)]
     private ?string $comment;
@@ -46,7 +46,7 @@ class Event
         Actor $actor,
         Repo $repo,
         array $payload,
-        DateTimeImmutable $createAt,
+        DateTimeImmutable $createdAt,
         ?string $comment,
     ) {
         $this->id = $id;
@@ -55,7 +55,7 @@ class Event
         $this->actor = $actor;
         $this->repo = $repo;
         $this->payload = $payload;
-        $this->createAt = $createAt;
+        $this->createdAt = $createdAt;
         $this->comment = $comment;
 
         if ($type === EventType::COMMIT) {
@@ -95,7 +95,7 @@ class Event
 
     public function createAt(): DateTimeImmutable
     {
-        return $this->createAt;
+        return $this->createdAt;
     }
 
     public function getComment(): ?string

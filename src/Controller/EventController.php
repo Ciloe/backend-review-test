@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Dto\EventInput;
+use App\Dto\EventCommentInput;
 use App\Repository\ReadEventRepository;
 use App\Repository\WriteEventRepository;
 use Exception;
@@ -29,10 +29,10 @@ class EventController
         $this->serializer = $serializer;
     }
 
-    #[Route('/api/event/{id}/update', name: "api_commit_update", methods: ["PUT"])]
+    #[Route('/api/event/{id}/update-comment', name: "api_commit_update", methods: ["PUT"])]
     public function update(Request $request, int $id, ValidatorInterface $validator): Response
     {
-        $eventInput = $this->serializer->deserialize($request->getContent(), EventInput::class, 'json');
+        $eventInput = $this->serializer->deserialize($request->getContent(), EventCommentInput::class, 'json');
         if (!$eventInput->isInitialized()) {
             return new JsonResponse(
                 ['message' => 'Requested parameters not sent'],
@@ -57,7 +57,7 @@ class EventController
         }
 
         try {
-            $this->writeEventRepository->update($eventInput, $id);
+            $this->writeEventRepository->updateComment($eventInput, $id);
         } catch (Exception) {
             return new Response(null, Response::HTTP_SERVICE_UNAVAILABLE);
         }

@@ -36,7 +36,7 @@ class EventControllerTest extends WebTestCase
 
         $client->request(
             'PUT',
-            sprintf('/api/event/%d/update', EventFixtures::EVENT_1_ID),
+            sprintf('/api/event/%d/update-comment', EventFixtures::EVENT_1_ID),
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
@@ -53,7 +53,7 @@ class EventControllerTest extends WebTestCase
 
         $client->request(
             'PUT',
-            sprintf('/api/event/%d/update', 7897897897),
+            sprintf('/api/event/%d/update-comment', 7897897897),
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
@@ -80,7 +80,7 @@ class EventControllerTest extends WebTestCase
 
         $client->request(
             'PUT',
-            sprintf('/api/event/%d/update', EventFixtures::EVENT_1_ID),
+            sprintf('/api/event/%d/update-comment', EventFixtures::EVENT_1_ID),
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
