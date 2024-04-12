@@ -1,6 +1,9 @@
 version: '3'
 
 services:
+  php:
+    ports:
+      - 8086:8000
 ###> doctrine/doctrine-bundle ###
   database:
       ports:

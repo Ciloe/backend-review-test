@@ -2,7 +2,6 @@ COLOR_RESET   = \033[0m
 COLOR_SUCCESS = \033[32m
 COLOR_ERROR   = \033[31m
 COLOR_COMMENT = \033[33m
-
 define log
 	echo "[$(COLOR_COMMENT)$(shell date +"%T")$(COLOR_RESET)][$(COLOR_COMMENT)$(@)$(COLOR_RESET)] $(COLOR_COMMENT)$(1)$(COLOR_RESET)"
 endef
